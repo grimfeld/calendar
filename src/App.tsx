@@ -23,6 +23,8 @@ import {
   type TaskRecord,
 } from "@/lib/pb";
 import { LoginScreen } from "@/components/LoginScreen";
+import { LockScreen } from "@/components/LockScreen";
+import { biometricAvailable } from "@/lib/biometric";
 import {
   Sheet,
   SheetContent,
@@ -42,6 +44,8 @@ const DAY_MS = 24 * HOUR_MS;
 
 function App() {
   const [authed, setAuthed] = useState(isAuthed);
+  // Biometric gate over a restored session: null = checking availability.
+  const [locked, setLocked] = useState<boolean | null>(isAuthed() ? null : false);
   const [events, setEvents] = useState<EventRecord[] | null>(null);
   const [tasks, setTasks] = useState<TaskRecord[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -70,17 +74,33 @@ function App() {
     }
   }, []);
 
-  useEffect(() => onAuthChange(() => setAuthed(isAuthed())), []);
+  useEffect(
+    () =>
+      onAuthChange(() => {
+        const now = isAuthed();
+        setAuthed(now);
+        // A fresh password login is itself proof of presence — don't
+        // immediately re-lock behind biometrics.
+        if (!now) setLocked(false);
+      }),
+    [],
+  );
+
+  // On startup with a restored session, gate behind biometrics when available.
+  useEffect(() => {
+    if (locked !== null) return;
+    biometricAvailable().then((avail) => setLocked(avail));
+  }, [locked]);
 
   useEffect(() => {
-    if (!authed) {
+    if (!authed || locked !== false) {
       setEvents(null);
       setTasks(null);
       return;
     }
     ensurePermission();
     refetch();
-  }, [authed, refetch]);
+  }, [authed, locked, refetch]);
 
   const tasksById = useMemo(
     () => new Map((tasks ?? []).map((t) => [t.id, t])),
@@ -249,6 +269,13 @@ function App() {
   }
 
   if (!authed) return <LoginScreen />;
+  if (locked !== false)
+    return locked === null ? null : (
+      <LockScreen
+        onUnlock={() => setLocked(false)}
+        onUsePassword={logout}
+      />
+    );
 
   const openBlock = openBlockId
     ? ((events ?? []).find((r) => r.id === openBlockId) ?? null)

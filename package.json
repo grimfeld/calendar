@@ -21,6 +21,7 @@
     "@fullcalendar/timegrid": "^6.1.21",
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-biometric": "^2.3.2",
     "@tauri-apps/plugin-fs": "^2.5.1",
     "@tauri-apps/plugin-notification": "^2.3.3",
     "@tauri-apps/plugin-opener": "^2",
