@@ -46,11 +46,16 @@ jobs:
             echo "::error::ANDROID_KEYSTORE_B64 secret is not set — run the gh secret set commands (see pocketbase/README / project docs) and re-run."
             exit 1
           fi
-          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | tr -d '\r\n ' | base64 -d > "$RUNNER_TEMP/keystore.jks"
+          printf '%s' "${{ secrets.ANDROID_KEYSTORE_B64 }}" | tr -d '\r\n ' | base64 -d > "$RUNNER_TEMP/keystore.jks" || { echo "::error::keystore secret is not valid base64"; exit 1; }
           # Strip any stray CR/LF the secrets may carry (e.g. from piping a
           # file with a trailing newline into `gh secret set`).
           PASS=$(printf '%s' "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" | tr -d '\r\n')
           ALIAS=$(printf '%s' "${{ secrets.ANDROID_KEY_ALIAS }}" | tr -d '\r\n')
+          # Leak-safe diagnostics: lengths + hashes only, to compare with the
+          # values on the dev machine when signing fails.
+          echo "jks bytes: $(wc -c < "$RUNNER_TEMP/keystore.jks") sha: $(sha256sum "$RUNNER_TEMP/keystore.jks" | cut -c1-16)"
+          echo "pass len: ${#PASS} sha: $(printf '%s' "$PASS" | sha256sum | cut -c1-16)"
+          echo "alias len: ${#ALIAS} sha: $(printf '%s' "$ALIAS" | sha256sum | cut -c1-16)"
           {
             echo "storeFile=$RUNNER_TEMP/keystore.jks"
             echo "password=$PASS"
@@ -58,7 +63,7 @@ jobs:
           } > src-tauri/gen/android/app/keystore.properties
           # Verify the keystore opens with these values before spending 10 CI
           # minutes on the build.
-          keytool -list -keystore "$RUNNER_TEMP/keystore.jks" -storepass "$PASS" -alias "$ALIAS" >/dev/null
+          keytool -list -keystore "$RUNNER_TEMP/keystore.jks" -storepass "$PASS" -alias "$ALIAS" >/dev/null || { echo "::error::keystore/password/alias mismatch"; exit 1; }
           echo "keystore verified"
 
       - name: Build signed APK
