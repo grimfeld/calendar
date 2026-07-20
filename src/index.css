@@ -128,3 +128,80 @@
     @apply font-sans;
     }
 }
+
+/* ---- FullCalendar: match the shadcn theme ---- */
+:root {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--background);
+  --fc-neutral-bg-color: var(--muted);
+  --fc-today-bg-color: color-mix(in oklch, var(--accent) 55%, transparent);
+  --fc-event-bg-color: oklch(0.55 0.17 259);   /* events: blue */
+  --fc-event-border-color: oklch(0.55 0.17 259);
+  --fc-event-text-color: oklch(0.985 0 0);
+  --fc-highlight-color: color-mix(in oklch, oklch(0.55 0.17 259) 18%, transparent);
+  --fc-now-indicator-color: var(--destructive);
+  --fc-small-font-size: 0.75rem;
+}
+
+.fc {
+  font-size: 0.875rem;
+}
+.fc .fc-toolbar-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+/* Toolbar buttons -> shadcn outline/secondary look */
+.fc .fc-button {
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  padding: 0.3rem 0.7rem;
+  text-transform: capitalize;
+}
+.fc .fc-button:hover {
+  background: var(--accent);
+  border-color: var(--border);
+  color: var(--accent-foreground);
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+.fc .fc-button:focus,
+.fc .fc-button-primary:not(:disabled).fc-button-active:focus,
+.fc .fc-button-primary:not(:disabled):active:focus {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+}
+.fc .fc-button:disabled {
+  background: var(--muted);
+  border-color: var(--border);
+  color: var(--muted-foreground);
+}
+.fc .fc-event {
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/* TimeBlocks (scheduled task sessions): green, distinct from events */
+.fc .fc-task-block {
+  --fc-event-bg-color: oklch(0.6 0.13 155);
+  --fc-event-border-color: oklch(0.6 0.13 155);
+  background: oklch(0.6 0.13 155);
+  border-color: oklch(0.6 0.13 155);
+}
+/* Blocks of a done task stay on the grid, muted + struck through */
+.fc .fc-task-done {
+  background: var(--muted);
+  border-color: var(--border);
+  opacity: 0.75;
+}
+.fc .fc-task-done .fc-event-title,
+.fc .fc-task-done .fc-event-time {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+}

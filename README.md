@@ -2,14 +2,14 @@
 
 A personal calendar app — a [Tauri v2](https://tauri.app) desktop + Android application with a [PocketBase](https://pocketbase.io) backend. Fill your schedule with events and tasks, with a flexible, low-friction UI.
 
-> **Status: walking skeleton.** Events round-trip (create → persist → read) on a calendar grid against a local PocketBase, on desktop. Android, the VPS backend, notifications, widgets, and tasks are planned — see the map in [`.scratch/skeleton/`](.scratch/skeleton/map.md).
+> **Status: events + tasks.** Google Calendar-style grid: drag-select to create events, drag/resize to move them, and a task Backlog whose items schedule onto the calendar as TimeBlocks (drag from the sidebar, or tap-to-place on touch). See `CONTEXT.md` for the domain language and `docs/adr/` for key decisions. The VPS backend, notifications, and widgets are still planned.
 
 ## Stack
 
 - **Tauri v2** (Rust shell) — desktop (macOS) + Android
 - **React 19 + Vite 7 + TypeScript**
 - **Tailwind CSS v4** + **shadcn/ui** (radix-nova)
-- **Schedule-X** v4 calendar grid
+- **FullCalendar** v6 calendar grid (MIT packages; see `docs/adr/0002`)
 - **PocketBase** 0.39 (local for now; a dedicated VPS is a later effort)
 
 ## Prerequisites
@@ -35,7 +35,7 @@ The app reads the backend URL from `VITE_PB_URL` (default `http://127.0.0.1:8090
 
 ## Layout
 
-- `src/` — React frontend (`lib/pb.ts` PocketBase client, `components/CalendarView.tsx` calendar)
+- `src/` — React frontend (`lib/pb.ts` PocketBase client, `components/CalendarView.tsx` grid, `components/TaskSidebar.tsx` backlog)
 - `src-tauri/` — Tauri (Rust) shell
 - `pocketbase/` — local PocketBase binary (gitignored) + schema migrations
 - `.scratch/skeleton/` — the build plan (wayfinder map + tickets)

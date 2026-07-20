@@ -1,0 +1,73 @@
+name: Android APK release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install NDK
+        run: sdkmanager "ndk;27.1.12297006"
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Write signing keystore from secrets
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/keystore.jks"
+          cat > src-tauri/gen/android/app/keystore.properties <<EOF
+          storeFile=$RUNNER_TEMP/keystore.jks
+          password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          EOF
+
+      - name: Build signed APK
+        run: npx tauri android build --apk --target aarch64
+        env:
+          NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/27.1.12297006
+          # Released APKs talk to the fly.io PocketBase (auth-gated).
+          VITE_PB_URL: https://calendar-pb.fly.dev
+
+      - name: Rename APK
+        run: |
+          APK=$(find src-tauri/gen/android/app/build/outputs/apk -name "*-release.apk" | head -1)
+          cp "$APK" calendar-${GITHUB_SHA::7}.apk
+
+      - name: Publish rolling "latest" release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest APK
+          prerelease: true
+          body: |
+            Automated build of `${{ github.sha }}`.
+            Download the APK below and install on Android (sideload).
+          files: calendar-*.apk

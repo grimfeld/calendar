@@ -1,58 +1,96 @@
-import { useEffect, useState } from "react";
-import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
-import type { CalendarEventExternal } from "@schedule-x/calendar";
-import {
-  createViewMonthGrid,
-  createViewWeek,
-  createViewDay,
-} from "@schedule-x/calendar";
-import "@schedule-x/theme-shadcn/dist/index.css";
-import { listEvents } from "@/lib/pb";
-import { pbToScheduleX } from "@/lib/eventMap";
+import FullCalendar from "@fullcalendar/react";
+import type { EventInput } from "@fullcalendar/core";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
 
-// Created only once events are loaded, so they can be passed directly into
-// useCalendarApp. Remounted (via key) when the event set changes after a create.
-function CalendarInner({ events }: { events: CalendarEventExternal[] }) {
-  const calendar = useCalendarApp({
-    views: [createViewMonthGrid(), createViewWeek(), createViewDay()],
-    defaultView: "month-grid",
-    events,
-  });
-  return <ScheduleXCalendar calendarApp={calendar} />;
+export interface EventTimeChange {
+  id: string;
+  start: Date;
+  end: Date | null;
+  allDay: boolean;
+  revert: () => void;
 }
 
-/** Fetches events from PocketBase and renders them on the Schedule-X grid. */
+/**
+ * The calendar grid. Purely presentational: data and mutations live in App.
+ * Google-style interactions: drag a range to create, drag/resize to move,
+ * click for details, and drop a task card from the sidebar to schedule it.
+ */
 export function CalendarView({
-  reloadKey,
-  onError,
+  mobile,
+  events,
+  onSelectRange,
+  onDateClick,
+  onEventClick,
+  onEventTimeChange,
+  onExternalDrop,
 }: {
-  reloadKey: number;
-  onError: (msg: string) => void;
+  mobile: boolean;
+  events: EventInput[];
+  onSelectRange: (start: Date, end: Date, allDay: boolean) => void;
+  onDateClick: (date: Date, allDay: boolean) => void;
+  onEventClick: (id: string) => void;
+  onEventTimeChange: (change: EventTimeChange) => void;
+  onExternalDrop: (taskId: string, start: Date, allDay: boolean) => void;
 }) {
-  const [events, setEvents] = useState<CalendarEventExternal[] | null>(null);
-  // Bumped AFTER each fetch resolves. Keying the calendar on this (not on
-  // reloadKey) guarantees the remount carries the freshly-fetched events —
-  // useCalendarApp only reads events at mount, so events + key must change
-  // together.
-  const [version, setVersion] = useState(0);
-
-  useEffect(() => {
-    let alive = true;
-    listEvents()
-      .then((recs) => {
-        if (!alive) return;
-        setEvents(recs.map(pbToScheduleX));
-        setVersion((v) => v + 1);
-      })
-      .catch((e) => onError(String(e)));
-    return () => {
-      alive = false;
-    };
-  }, [reloadKey, onError]);
-
-  if (!events) {
-    return <p className="text-sm text-muted-foreground">Loading events…</p>;
-  }
-
-  return <CalendarInner key={version} events={events} />;
+  return (
+    <FullCalendar
+      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+      initialView={mobile ? "timeGridDay" : "timeGridWeek"}
+      headerToolbar={{
+        left: "prev,next today",
+        center: mobile ? "" : "title",
+        right: "dayGridMonth,timeGridWeek,timeGridDay",
+      }}
+      dayHeaderFormat={
+        mobile
+          ? { weekday: "short", day: "numeric" }
+          : { weekday: "short", month: "numeric", day: "numeric", omitCommas: true }
+      }
+      height="100%"
+      nowIndicator
+      dayMaxEvents
+      events={events}
+      selectable
+      selectMirror
+      select={(info) => onSelectRange(info.start, info.end, info.allDay)}
+      dateClick={(info) => {
+        // Clear the click's own slot-selection highlight before armed placement.
+        info.view.calendar.unselect();
+        onDateClick(info.date, info.allDay);
+      }}
+      eventClick={(info) => onEventClick(info.event.id)}
+      editable
+      eventDrop={(info) =>
+        onEventTimeChange({
+          id: info.event.id,
+          start: info.event.start!,
+          end: info.event.end,
+          allDay: info.event.allDay,
+          revert: info.revert,
+        })
+      }
+      eventResize={(info) =>
+        onEventTimeChange({
+          id: info.event.id,
+          start: info.event.start!,
+          end: info.event.end,
+          allDay: info.event.allDay,
+          revert: info.revert,
+        })
+      }
+      droppable
+      eventReceive={(info) => {
+        // A task card dropped from the sidebar. FullCalendar has already added
+        // a temporary event — remove it; the real TimeBlock arrives via the
+        // PB round-trip and refetch.
+        const taskId = info.event.extendedProps.taskId as string;
+        const start = info.event.start!;
+        const allDay = info.event.allDay;
+        info.event.remove();
+        onExternalDrop(taskId, start, allDay);
+      }}
+    />
+  );
 }
