@@ -42,6 +42,10 @@ jobs:
 
       - name: Write signing keystore from secrets
         run: |
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_B64 }}" ]; then
+            echo "::error::ANDROID_KEYSTORE_B64 secret is not set — run the gh secret set commands (see pocketbase/README / project docs) and re-run."
+            exit 1
+          fi
           echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/keystore.jks"
           cat > src-tauri/gen/android/app/keystore.properties <<EOF
           storeFile=$RUNNER_TEMP/keystore.jks
