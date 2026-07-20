@@ -1,0 +1,9 @@
+# Only the frontend matters for the Vercel web deploy.
+src-tauri
+pocketbase
+.scratch
+.github
+.husky
+docs
+dist
+node_modules
