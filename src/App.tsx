@@ -24,7 +24,9 @@ import {
 } from "@/lib/pb";
 import { LoginScreen } from "@/components/LoginScreen";
 import { LockScreen } from "@/components/LockScreen";
+import { TaskDialog, type TaskSubmit } from "@/components/TaskDialog";
 import { biometricAvailable } from "@/lib/biometric";
+import { shouldReopen } from "@/lib/recurrence";
 import {
   Sheet,
   SheetContent,
@@ -57,10 +59,19 @@ function App() {
   const [armedTaskId, setArmedTaskId] = useState<string | null>(null);
   const [eventDraft, setEventDraft] = useState<EventDraft | null>(null);
   const [openBlockId, setOpenBlockId] = useState<string | null>(null);
+  const [editTask, setEditTask] = useState<TaskRecord | null>(null);
 
   const refetch = useCallback(async () => {
     try {
-      const [evs, tks] = await Promise.all([listEvents(), listTasks()]);
+      let [evs, tks] = await Promise.all([listEvents(), listTasks()]);
+      // Recurring tasks completed in a previous period come due again.
+      const reopen = tks.filter((t) => shouldReopen(t, new Date()));
+      if (reopen.length) {
+        await Promise.all(
+          reopen.map((t) => updateTask(t.id, { done: false, done_on: "" })),
+        );
+        tks = await listTasks();
+      }
       setEvents(evs);
       setTasks(tks);
       setError(null);
@@ -117,6 +128,18 @@ function App() {
     () => (events ?? []).map((r) => pbToFc(r, tasksById)),
     [events, tasksById],
   );
+
+  // Tasks with an upcoming TimeBlock — shown muted in the Backlog.
+  const scheduledTaskIds = useMemo(() => {
+    const now = Date.now();
+    const ids = new Set<string>();
+    for (const r of events ?? []) {
+      if (!r.task) continue;
+      const edge = new Date((r.end || r.start).replace(" ", "T")).getTime();
+      if (edge >= now) ids.add(r.task);
+    }
+    return ids;
+  }, [events]);
 
   /** Wraps a PB mutation: run, refetch, surface errors. */
   async function mutate(fn: () => Promise<unknown>) {
@@ -254,7 +277,18 @@ function App() {
   // ---- Tasks ----
 
   function handleToggleDone(task: TaskRecord) {
-    mutate(() => updateTask(task.id, { done: !task.done }));
+    const done = !task.done;
+    mutate(() =>
+      updateTask(task.id, {
+        done,
+        done_on: done ? new Date().toISOString() : "",
+      }),
+    );
+  }
+
+  async function handleTaskSubmit(id: string, data: TaskSubmit) {
+    const ok = await mutate(() => updateTask(id, data));
+    if (ok) setEditTask(null);
   }
 
   function handleDeleteTask(task: TaskRecord) {
@@ -319,7 +353,9 @@ function App() {
             <TaskSidebar
               tasks={tasks ?? []}
               armedTaskId={armedTaskId}
+              scheduledTaskIds={scheduledTaskIds}
               onAdd={(title) => mutate(() => createTask({ title }))}
+              onEdit={setEditTask}
               onToggleDone={handleToggleDone}
               onDelete={handleDeleteTask}
               onArm={(taskId) => {
@@ -370,6 +406,11 @@ function App() {
         </div>
       </div>
 
+      <TaskDialog
+        task={editTask}
+        onSubmit={handleTaskSubmit}
+        onClose={() => setEditTask(null)}
+      />
       <EventDialog
         draft={eventDraft}
         onSubmit={handleEventSubmit}

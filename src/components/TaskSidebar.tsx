@@ -9,7 +9,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { TaskRecord } from "@/lib/pb";
-import { CalendarClock, Check, ChevronDown, ChevronRight, Trash2, Undo2 } from "lucide-react";
+import {
+  CalendarClock,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Repeat,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 
 /**
  * The Backlog: create tasks, mark them done, and schedule them onto the grid —
@@ -19,14 +27,19 @@ import { CalendarClock, Check, ChevronDown, ChevronRight, Trash2, Undo2 } from "
 export function TaskSidebar({
   tasks,
   armedTaskId,
+  scheduledTaskIds,
   onAdd,
+  onEdit,
   onToggleDone,
   onDelete,
   onArm,
 }: {
   tasks: TaskRecord[];
   armedTaskId: string | null;
+  /** Tasks with at least one upcoming TimeBlock — rendered muted. */
+  scheduledTaskIds: Set<string>;
   onAdd: (title: string) => void;
+  onEdit: (task: TaskRecord) => void;
   onToggleDone: (task: TaskRecord) => void;
   onDelete: (task: TaskRecord) => void;
   onArm: (taskId: string | null) => void;
@@ -95,11 +108,19 @@ export function TaskSidebar({
             className={cn(
               "group flex cursor-grab items-center gap-1.5 rounded-md border bg-card px-2 py-1.5 text-sm shadow-xs",
               armedTaskId === t.id && "ring-2 ring-ring",
+              // Already on the calendar -> visually parked.
+              scheduledTaskIds.has(t.id) && "opacity-50",
             )}
           >
-            <span className="min-w-0 flex-1 truncate" title={t.title}>
-              {t.title}
-            </span>
+            <button
+              type="button"
+              className="flex min-w-0 flex-1 items-center gap-1 truncate text-left"
+              title={`${t.title} — tap to edit`}
+              onClick={() => onEdit(t)}
+            >
+              <span className="min-w-0 truncate">{t.title}</span>
+              {t.repeat && <Repeat className="size-3 shrink-0 text-muted-foreground" />}
+            </button>
             <Button
               variant="ghost"
               size="icon"

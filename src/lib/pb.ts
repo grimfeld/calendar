@@ -65,6 +65,10 @@ export interface TaskRecord {
   title: string;
   notes: string;
   done: boolean;
+  /** "" | "daily" | "weekly" | "monthly" — reopens each period (recurrence.ts). */
+  repeat: string;
+  /** PB date string of the last completion; "" if never/open. */
+  done_on: string;
   created: string;
 }
 
@@ -111,7 +115,13 @@ export function createTask(data: {
 
 export function updateTask(
   id: string,
-  data: Partial<{ title: string; notes: string; done: boolean }>,
+  data: Partial<{
+    title: string;
+    notes: string;
+    done: boolean;
+    repeat: string;
+    done_on: string;
+  }>,
 ): Promise<TaskRecord> {
   return pb.collection("tasks").update<TaskRecord>(id, data);
 }
