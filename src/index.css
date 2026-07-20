@@ -187,6 +187,12 @@
   cursor: pointer;
 }
 
+/* Work-hours delimiters: brighter lines at 09:00 and 17:00 */
+.fc .fc-timegrid-slot[data-time="09:00:00"],
+.fc .fc-timegrid-slot[data-time="17:00:00"] {
+  border-top: 2px solid oklch(0.55 0.17 259);
+}
+
 /* TimeBlocks (scheduled task sessions): green, distinct from events */
 .fc .fc-task-block {
   --fc-event-bg-color: oklch(0.6 0.13 155);
