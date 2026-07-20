@@ -46,12 +46,20 @@ jobs:
             echo "::error::ANDROID_KEYSTORE_B64 secret is not set — run the gh secret set commands (see pocketbase/README / project docs) and re-run."
             exit 1
           fi
-          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/keystore.jks"
-          cat > src-tauri/gen/android/app/keystore.properties <<EOF
-          storeFile=$RUNNER_TEMP/keystore.jks
-          password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
-          EOF
+          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | tr -d '\r\n ' | base64 -d > "$RUNNER_TEMP/keystore.jks"
+          # Strip any stray CR/LF the secrets may carry (e.g. from piping a
+          # file with a trailing newline into `gh secret set`).
+          PASS=$(printf '%s' "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" | tr -d '\r\n')
+          ALIAS=$(printf '%s' "${{ secrets.ANDROID_KEY_ALIAS }}" | tr -d '\r\n')
+          {
+            echo "storeFile=$RUNNER_TEMP/keystore.jks"
+            echo "password=$PASS"
+            echo "keyAlias=$ALIAS"
+          } > src-tauri/gen/android/app/keystore.properties
+          # Verify the keystore opens with these values before spending 10 CI
+          # minutes on the build.
+          keytool -list -keystore "$RUNNER_TEMP/keystore.jks" -storepass "$PASS" -alias "$ALIAS" >/dev/null
+          echo "keystore verified"
 
       - name: Build signed APK
         run: npx tauri android build --apk --target aarch64
