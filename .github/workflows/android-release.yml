@@ -76,7 +76,9 @@ jobs:
       - name: Rename APK
         run: |
           APK=$(find src-tauri/gen/android/app/build/outputs/apk -name "*-release.apk" | head -1)
-          cp "$APK" calendar-${GITHUB_SHA::7}.apk
+          # Stable name so the rolling release replaces the asset instead of
+          # accumulating one per commit; the release body carries the sha.
+          cp "$APK" calendar.apk
 
       - name: Publish rolling "latest" release
         uses: softprops/action-gh-release@v2
@@ -87,4 +89,4 @@ jobs:
           body: |
             Automated build of `${{ github.sha }}`.
             Download the APK below and install on Android (sideload).
-          files: calendar-*.apk
+          files: calendar.apk
