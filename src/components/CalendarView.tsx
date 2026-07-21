@@ -1,5 +1,6 @@
 import FullCalendar from "@fullcalendar/react";
 import type { EventInput } from "@fullcalendar/core";
+import frLocale from "@fullcalendar/core/locales/fr";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -38,6 +39,7 @@ export function CalendarView({
     <FullCalendar
       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
       initialView={mobile ? "timeGridDay" : "timeGridWeek"}
+      locale={frLocale}
       firstDay={1}
       headerToolbar={{
         left: "prev,next today",

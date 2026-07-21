@@ -62,11 +62,11 @@ export function TaskDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit task</DialogTitle>
+          <DialogTitle>Modifier la tâche</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="flex flex-col gap-4">
           <div className="grid gap-1.5">
-            <Label htmlFor="task-title">Title</Label>
+            <Label htmlFor="task-title">Titre</Label>
             <Input
               id="task-title"
               value={title}
@@ -78,33 +78,33 @@ export function TaskDialog({
             <Label htmlFor="task-notes">Notes</Label>
             <Textarea
               id="task-notes"
-              placeholder="Optional"
+              placeholder="Facultatif"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
             />
           </div>
           <div className="grid gap-1.5">
-            <Label>Repeats</Label>
+            <Label>Répétition</Label>
             <Select value={repeat} onValueChange={setRepeat}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Never</SelectItem>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly (Mon)</SelectItem>
-                <SelectItem value="monthly">Monthly (1st)</SelectItem>
+                <SelectItem value="none">Jamais</SelectItem>
+                <SelectItem value="daily">Quotidienne</SelectItem>
+                <SelectItem value="weekly">Hebdomadaire (lundi)</SelectItem>
+                <SelectItem value="monthly">Mensuelle (le 1er)</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              A repeating task reopens at the start of the next period after
-              you complete it.
+              Une tâche répétitive se rouvre au début de la période suivante
+              une fois terminée.
             </p>
           </div>
           <DialogFooter>
             <Button type="submit" disabled={!title.trim()}>
-              Save
+              Enregistrer
             </Button>
           </DialogFooter>
         </form>

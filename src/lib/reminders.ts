@@ -28,7 +28,7 @@ function hashId(id: string): number {
   return Math.abs(h) || 1;
 }
 
-const timeFmt = new Intl.DateTimeFormat(undefined, {
+const timeFmt = new Intl.DateTimeFormat("fr-FR", {
   hour: "2-digit",
   minute: "2-digit",
 });
@@ -59,8 +59,8 @@ export function computeReminders(
       id: hashId(r.id),
       title,
       body: r.all_day
-        ? "All day today"
-        : `${task ? "Work session at" : "Starts at"} ${timeFmt.format(start)}`,
+        ? "Toute la journée aujourd'hui"
+        : `${task ? "Session de travail à" : "Commence à"} ${timeFmt.format(start)}`,
       fireAt,
     });
   }

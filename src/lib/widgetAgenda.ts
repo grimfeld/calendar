@@ -2,7 +2,7 @@ import { BaseDirectory, writeTextFile } from "@tauri-apps/plugin-fs";
 import { isAndroid, isTauri } from "@/lib/reminders";
 import type { EventRecord, TaskRecord } from "@/lib/pb";
 
-const timeFmt = new Intl.DateTimeFormat(undefined, {
+const timeFmt = new Intl.DateTimeFormat("fr-FR", {
   hour: "2-digit",
   minute: "2-digit",
 });
@@ -36,7 +36,7 @@ export async function writeWidgetAgenda(
       return {
         title: task ? task.title : r.title,
         time: r.all_day
-          ? "All day"
+          ? "Journée"
           : `${timeFmt.format(start)}${end ? " – " + timeFmt.format(end) : ""}`,
         isTask: !!r.task,
         done: task?.done ?? false,

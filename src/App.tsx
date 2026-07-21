@@ -307,7 +307,7 @@ function App() {
   }
 
   function handleDeleteTask(task: TaskRecord) {
-    if (!window.confirm(`Delete task "${task.title}" and its calendar blocks?`))
+    if (!window.confirm(`Supprimer la tâche « ${task.title} » et ses blocs du calendrier ?`))
       return;
     mutate(() => deleteTask(task.id));
   }
@@ -339,17 +339,17 @@ function App() {
         <Button
           variant="ghost"
           size="icon"
-          title={sidebarOpen ? "Hide tasks" : "Show tasks"}
+          title={sidebarOpen ? "Masquer les tâches" : "Afficher les tâches"}
           onClick={() => setSidebarOpen((s) => !s)}
         >
           {sidebarOpen ? <PanelLeftClose /> : <PanelLeftOpen />}
         </Button>
-        <h1 className="text-lg font-semibold">Calendar</h1>
+        <h1 className="text-lg font-semibold">Calendrier</h1>
         <p className="text-xs text-muted-foreground">{PB_URL}</p>
         {!isMobile && (
           <Button size="sm" onClick={openNewEvent}>
             <Plus />
-            New event
+            Nouvel événement
           </Button>
         )}
         {error && (
@@ -361,7 +361,7 @@ function App() {
           variant="ghost"
           size="icon"
           className={error ? "" : "ml-auto"}
-          title="Sign out"
+          title="Se déconnecter"
           onClick={logout}
         >
           <LogOut />
@@ -397,7 +397,7 @@ function App() {
                 onOpenAutoFocus={(e) => e.preventDefault()}
               >
                 <SheetHeader className="sr-only">
-                  <SheetTitle>Tasks</SheetTitle>
+                  <SheetTitle>Tâches</SheetTitle>
                 </SheetHeader>
                 {sidebar}
               </SheetContent>
@@ -412,7 +412,7 @@ function App() {
         })()}
         <div className="min-w-0 flex-1 p-3">
           {events === null ? (
-            <p className="text-sm text-muted-foreground">Loading events…</p>
+            <p className="text-sm text-muted-foreground">Chargement des événements…</p>
           ) : (
             <CalendarView
               mobile={isMobile}
@@ -431,7 +431,7 @@ function App() {
         <Button
           size="icon"
           className="fixed right-5 bottom-6 z-40 size-14 rounded-full shadow-lg"
-          title="New event"
+          title="Nouvel événement"
           onClick={openNewEvent}
         >
           <Plus className="size-6" />

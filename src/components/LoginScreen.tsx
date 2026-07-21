@@ -26,7 +26,7 @@ export function LoginScreen() {
       await login(email, password);
       // App re-renders via the authStore onChange subscription.
     } catch {
-      setError("Sign-in failed — check email and password.");
+      setError("Échec de la connexion — vérifiez l'e-mail et le mot de passe.");
     } finally {
       setBusy(false);
     }
@@ -36,13 +36,13 @@ export function LoginScreen() {
     <main className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Calendar</CardTitle>
-          <CardDescription>Sign in to your calendar</CardDescription>
+          <CardTitle>Calendrier</CardTitle>
+          <CardDescription>Connectez-vous à votre calendrier</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={submit} className="flex flex-col gap-4">
             <div className="grid gap-1.5">
-              <Label htmlFor="login-email">Email</Label>
+              <Label htmlFor="login-email">E-mail</Label>
               <Input
                 id="login-email"
                 type="email"
@@ -53,7 +53,7 @@ export function LoginScreen() {
               />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="login-password">Password</Label>
+              <Label htmlFor="login-password">Mot de passe</Label>
               <Input
                 id="login-password"
                 type="password"
@@ -64,7 +64,7 @@ export function LoginScreen() {
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" disabled={busy || !email || !password}>
-              {busy ? "Signing in…" : "Sign in"}
+              {busy ? "Connexion…" : "Se connecter"}
             </Button>
           </form>
         </CardContent>

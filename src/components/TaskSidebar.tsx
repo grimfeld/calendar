@@ -76,10 +76,10 @@ export function TaskSidebar({
 
   return (
     <div className="flex h-full flex-col gap-3 overflow-y-auto p-3">
-      <h2 className="text-sm font-semibold">Tasks</h2>
+      <h2 className="text-sm font-semibold">Tâches</h2>
       <form onSubmit={submit}>
         <Input
-          placeholder="Add a task…"
+          placeholder="Ajouter une tâche…"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -87,9 +87,9 @@ export function TaskSidebar({
 
       {armedTaskId && (
         <p className="rounded-md bg-accent px-2 py-1.5 text-xs text-accent-foreground">
-          Tap a calendar slot to place the block —{" "}
+          Touchez un créneau du calendrier pour placer le bloc —{" "}
           <button className="underline" onClick={() => onArm(null)}>
-            cancel
+            annuler
           </button>
         </p>
       )}
@@ -97,7 +97,8 @@ export function TaskSidebar({
       <div ref={listRef} className="flex flex-col gap-1.5">
         {open.length === 0 && (
           <p className="text-xs text-muted-foreground">
-            No open tasks. Add one above, then drag it onto the calendar.
+            Aucune tâche ouverte. Ajoutez-en une ci-dessus, puis glissez-la sur
+            le calendrier.
           </p>
         )}
         {open.map((t) => (
@@ -115,7 +116,7 @@ export function TaskSidebar({
             <button
               type="button"
               className="flex min-w-0 flex-1 items-center gap-1 truncate text-left"
-              title={`${t.title} — tap to edit`}
+              title={`${t.title} — toucher pour modifier`}
               onClick={() => onEdit(t)}
             >
               <span className="min-w-0 truncate">{t.title}</span>
@@ -125,7 +126,7 @@ export function TaskSidebar({
               variant="ghost"
               size="icon"
               className="size-6 shrink-0"
-              title="Schedule: tap here, then tap a calendar slot"
+              title="Planifier : touchez ici, puis un créneau du calendrier"
               onClick={() => onArm(armedTaskId === t.id ? null : t.id)}
             >
               <CalendarClock />
@@ -134,7 +135,7 @@ export function TaskSidebar({
               variant="ghost"
               size="icon"
               className="size-6 shrink-0"
-              title="Mark done"
+              title="Marquer comme faite"
               onClick={() => onToggleDone(t)}
             >
               <Check />
@@ -143,7 +144,7 @@ export function TaskSidebar({
               variant="ghost"
               size="icon"
               className="size-6 shrink-0 text-destructive"
-              title="Delete task (removes its blocks)"
+              title="Supprimer la tâche (retire ses blocs)"
               onClick={() => onDelete(t)}
             >
               <Trash2 />
@@ -160,7 +161,7 @@ export function TaskSidebar({
         >
           <CollapsibleTrigger className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
             {showDone ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
-            Done ({done.length})
+            Terminées ({done.length})
           </CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col gap-1.5">
             {done.map((t) => (
@@ -175,7 +176,7 @@ export function TaskSidebar({
                   variant="ghost"
                   size="icon"
                   className="size-6 shrink-0"
-                  title="Reopen"
+                  title="Rouvrir"
                   onClick={() => onToggleDone(t)}
                 >
                   <Undo2 />
@@ -184,7 +185,7 @@ export function TaskSidebar({
                   variant="ghost"
                   size="icon"
                   className="size-6 shrink-0 text-destructive"
-                  title="Delete task (removes its blocks)"
+                  title="Supprimer la tâche (retire ses blocs)"
                   onClick={() => onDelete(t)}
                 >
                   <Trash2 />

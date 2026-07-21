@@ -21,11 +21,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { toLocalDateInput, toLocalInput } from "@/lib/eventMap";
 
 export const REMINDER_OPTIONS = [
-  { value: 0, label: "None" },
-  { value: 5, label: "5 minutes before" },
-  { value: 10, label: "10 minutes before" },
-  { value: 30, label: "30 minutes before" },
-  { value: 60, label: "1 hour before" },
+  { value: 0, label: "Aucun" },
+  { value: 5, label: "5 minutes avant" },
+  { value: 10, label: "10 minutes avant" },
+  { value: 30, label: "30 minutes avant" },
+  { value: 60, label: "1 heure avant" },
 ] as const;
 
 /** What the dialog edits. `id` present = editing an existing event. */
@@ -126,14 +126,14 @@ export function EventDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{draft.id ? "Edit event" : "New event"}</DialogTitle>
+          <DialogTitle>{draft.id ? "Modifier l'événement" : "Nouvel événement"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="flex min-w-0 flex-col gap-4">
           <div className="grid gap-1.5">
-            <Label htmlFor="event-title">Title</Label>
+            <Label htmlFor="event-title">Titre</Label>
             <Input
               id="event-title"
-              placeholder="Event title"
+              placeholder="Titre de l'événement"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               autoFocus
@@ -145,11 +145,11 @@ export function EventDialog({
               checked={allDay}
               onCheckedChange={(c) => toggleAllDay(c === true)}
             />
-            <Label htmlFor="event-all-day">All day</Label>
+            <Label htmlFor="event-all-day">Toute la journée</Label>
           </div>
           <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid min-w-0 gap-1.5">
-              <Label htmlFor="event-start">Starts</Label>
+              <Label htmlFor="event-start">Début</Label>
               <Input
                 id="event-start"
                 className="w-full min-w-0"
@@ -159,7 +159,7 @@ export function EventDialog({
               />
             </div>
             <div className="grid min-w-0 gap-1.5">
-              <Label htmlFor="event-end">Ends</Label>
+              <Label htmlFor="event-end">Fin</Label>
               <Input
                 id="event-end"
                 className="w-full min-w-0"
@@ -170,7 +170,7 @@ export function EventDialog({
             </div>
           </div>
           <div className="grid gap-1.5">
-            <Label>Reminder</Label>
+            <Label>Rappel</Label>
             <Select
               // All-day reminders always fire morning-of; collapse to on/off.
               value={allDay ? (reminder > 0 ? "10" : "0") : String(reminder)}
@@ -182,8 +182,8 @@ export function EventDialog({
               <SelectContent>
                 {allDay ? (
                   <>
-                    <SelectItem value="0">None</SelectItem>
-                    <SelectItem value="10">Morning of (9:00)</SelectItem>
+                    <SelectItem value="0">Aucun</SelectItem>
+                    <SelectItem value="10">Le matin même (9h00)</SelectItem>
                   </>
                 ) : (
                   REMINDER_OPTIONS.map((o) => (
@@ -199,7 +199,7 @@ export function EventDialog({
             <Label htmlFor="event-description">Description</Label>
             <Textarea
               id="event-description"
-              placeholder="Optional"
+              placeholder="Facultatif"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -212,11 +212,11 @@ export function EventDialog({
                 variant="destructive"
                 onClick={() => onDelete(draft!.id!)}
               >
-                Delete
+                Supprimer
               </Button>
             )}
             <Button type="submit" disabled={!title.trim() || !start}>
-              {draft.id ? "Save" : "Add event"}
+              {draft.id ? "Enregistrer" : "Ajouter l'événement"}
             </Button>
           </DialogFooter>
         </form>

@@ -30,14 +30,14 @@ export function LockScreen({
     <main className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Calendar locked</CardTitle>
+          <CardTitle>Calendrier verrouillé</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           <Button onClick={attempt}>
-            <Fingerprint /> Unlock
+            <Fingerprint /> Déverrouiller
           </Button>
           <Button variant="outline" onClick={onUsePassword}>
-            Use password instead
+            Utiliser le mot de passe
           </Button>
         </CardContent>
       </Card>

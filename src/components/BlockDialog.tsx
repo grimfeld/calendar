@@ -42,7 +42,7 @@ export function BlockDialog({
 
   const fmt = (pbDate: string) =>
     pbDate
-      ? new Date(pbDate.replace(" ", "T")).toLocaleString(undefined, {
+      ? new Date(pbDate.replace(" ", "T")).toLocaleString("fr-FR", {
           weekday: "short",
           month: "short",
           day: "numeric",
@@ -59,13 +59,13 @@ export function BlockDialog({
             {task.title}
           </DialogTitle>
           <DialogDescription>
-            Work session · {fmt(block.start)}
+            Session de travail · {fmt(block.start)}
             {block.end ? ` – ${fmt(block.end)}` : ""}
           </DialogDescription>
         </DialogHeader>
         {task.notes && <p className="text-sm text-muted-foreground">{task.notes}</p>}
         <div className="grid gap-1.5">
-          <Label>Reminder</Label>
+          <Label>Rappel</Label>
           <Select
             value={String(block.reminder ?? 0)}
             onValueChange={(v) => onChangeReminder(block.id, Number(v))}
@@ -84,10 +84,10 @@ export function BlockDialog({
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onUnschedule(block.id)}>
-            Unschedule
+            Déplanifier
           </Button>
           <Button onClick={() => onToggleDone(task)}>
-            {task.done ? "Reopen task" : "Mark task done"}
+            {task.done ? "Rouvrir la tâche" : "Marquer la tâche faite"}
           </Button>
         </DialogFooter>
       </DialogContent>
