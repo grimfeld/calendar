@@ -36,7 +36,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ensurePermission, syncReminders } from "@/lib/reminders";
 import { writeWidgetAgenda } from "@/lib/widgetAgenda";
-import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LogOut, PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
 
 /** Google-style default: new events and blocks remind 10 minutes before. */
 const DEFAULT_REMINDER = 10;
@@ -202,6 +202,21 @@ function App() {
 
   // ---- Events ----
 
+  /** "New event" button: quick-create starting at the next full hour. */
+  function openNewEvent() {
+    const start = new Date();
+    start.setMinutes(0, 0, 0);
+    start.setTime(start.getTime() + HOUR_MS);
+    setEventDraft({
+      title: "",
+      start,
+      end: new Date(start.getTime() + HOUR_MS),
+      allDay: false,
+      description: "",
+      reminder: DEFAULT_REMINDER,
+    });
+  }
+
   function handleSelectRange(start: Date, end: Date, allDay: boolean) {
     // When a task is armed, placement happens in dateClick — don't also open
     // the quick-create for the same click.
@@ -331,6 +346,12 @@ function App() {
         </Button>
         <h1 className="text-lg font-semibold">Calendar</h1>
         <p className="text-xs text-muted-foreground">{PB_URL}</p>
+        {!isMobile && (
+          <Button size="sm" onClick={openNewEvent}>
+            <Plus />
+            New event
+          </Button>
+        )}
         {error && (
           <p className="ml-auto max-w-96 truncate text-sm text-destructive" title={error}>
             {error}
@@ -405,6 +426,17 @@ function App() {
           )}
         </div>
       </div>
+
+      {isMobile && (
+        <Button
+          size="icon"
+          className="fixed right-5 bottom-6 z-40 size-14 rounded-full shadow-lg"
+          title="New event"
+          onClick={openNewEvent}
+        >
+          <Plus className="size-6" />
+        </Button>
+      )}
 
       <TaskDialog
         task={editTask}

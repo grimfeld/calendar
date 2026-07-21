@@ -38,6 +38,7 @@ export function CalendarView({
     <FullCalendar
       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
       initialView={mobile ? "timeGridDay" : "timeGridWeek"}
+      firstDay={1}
       headerToolbar={{
         left: "prev,next today",
         center: mobile ? "" : "title",
