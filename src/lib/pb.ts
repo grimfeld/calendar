@@ -56,6 +56,8 @@ export interface EventRecord {
   task: string;
   /** Minutes before start to notify; 0 = no reminder. All-day: notifies at 09:00. */
   reminder: number;
+  /** Standalone time reservation (travel, break) — not a real event, no task. */
+  blocker: boolean;
   created: string;
 }
 
@@ -81,6 +83,7 @@ export interface NewEvent {
   description?: string;
   task?: string;
   reminder?: number;
+  blocker?: boolean;
 }
 
 export function listEvents(): Promise<EventRecord[]> {

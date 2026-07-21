@@ -24,7 +24,11 @@ export function pbToFc(
     start: pbToISO(r.start),
     end: r.end ? pbToISO(r.end) : undefined,
     allDay: r.all_day,
-    classNames: task ? ["fc-task-block", ...(task.done ? ["fc-task-done"] : [])] : [],
+    classNames: task
+      ? ["fc-task-block", ...(task.done ? ["fc-task-done"] : [])]
+      : r.blocker
+        ? ["fc-blocker"]
+        : [],
     extendedProps: {
       description: r.description,
       taskId: r.task || null,

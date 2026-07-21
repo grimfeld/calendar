@@ -26,6 +26,7 @@ export function CalendarView({
   onEventClick,
   onEventTimeChange,
   onExternalDrop,
+  onBlockerDrop,
 }: {
   mobile: boolean;
   events: EventInput[];
@@ -34,6 +35,7 @@ export function CalendarView({
   onEventClick: (id: string) => void;
   onEventTimeChange: (change: EventTimeChange) => void;
   onExternalDrop: (taskId: string, start: Date, allDay: boolean) => void;
+  onBlockerDrop: (title: string, minutes: number, start: Date, allDay: boolean) => void;
 }) {
   return (
     <FullCalendar
@@ -85,14 +87,23 @@ export function CalendarView({
       }
       droppable
       eventReceive={(info) => {
-        // A task card dropped from the sidebar. FullCalendar has already added
-        // a temporary event — remove it; the real TimeBlock arrives via the
-        // PB round-trip and refetch.
-        const taskId = info.event.extendedProps.taskId as string;
+        // A card dropped from the sidebar (task or blocker preset).
+        // FullCalendar has already added a temporary event — remove it; the
+        // real record arrives via the PB round-trip and refetch.
+        const props = info.event.extendedProps;
         const start = info.event.start!;
         const allDay = info.event.allDay;
         info.event.remove();
-        onExternalDrop(taskId, start, allDay);
+        if (props.blockerTitle) {
+          onBlockerDrop(
+            props.blockerTitle as string,
+            props.blockerMinutes as number,
+            start,
+            allDay,
+          );
+        } else {
+          onExternalDrop(props.taskId as string, start, allDay);
+        }
       }}
     />
   );

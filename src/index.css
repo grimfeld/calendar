@@ -193,6 +193,24 @@
   border-top: 2px solid oklch(0.55 0.17 259);
 }
 
+/* Blockers (travel time, breaks): hatched grey, clearly "not an event" */
+.fc .fc-blocker {
+  --fc-event-bg-color: transparent;
+  --fc-event-border-color: var(--muted-foreground);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--muted),
+    var(--muted) 6px,
+    var(--background) 6px,
+    var(--background) 12px
+  );
+  border: 1px dashed var(--muted-foreground);
+}
+.fc .fc-blocker .fc-event-title,
+.fc .fc-blocker .fc-event-time {
+  color: var(--foreground);
+}
+
 /* TimeBlocks (scheduled task sessions): green, distinct from events */
 .fc .fc-task-block {
   --fc-event-bg-color: oklch(0.6 0.13 155);

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CalendarView, type EventTimeChange } from "@/components/CalendarView";
-import { TaskSidebar } from "@/components/TaskSidebar";
+import { TaskSidebar, type BlockerPreset } from "@/components/TaskSidebar";
 import { EventDialog, type EventDraft, type EventSubmit } from "@/components/EventDialog";
 import { BlockDialog } from "@/components/BlockDialog";
 import { pbToFc } from "@/lib/eventMap";
@@ -57,6 +57,7 @@ function App() {
     () => window.matchMedia("(min-width: 768px)").matches,
   );
   const [armedTaskId, setArmedTaskId] = useState<string | null>(null);
+  const [armedBlocker, setArmedBlocker] = useState<BlockerPreset | null>(null);
   const [eventDraft, setEventDraft] = useState<EventDraft | null>(null);
   const [openBlockId, setOpenBlockId] = useState<string | null>(null);
   const [editTask, setEditTask] = useState<TaskRecord | null>(null);
@@ -176,10 +177,31 @@ function App() {
     );
   }
 
+  /** Blockers: bare time reservations (travel, breaks) — no task, no alert. */
+  function createBlocker(preset: BlockerPreset, start: Date, allDay: boolean) {
+    mutate(() =>
+      createEvent({
+        title: preset.title,
+        start: start.toISOString(),
+        end: allDay
+          ? undefined
+          : new Date(start.getTime() + preset.minutes * 60_000).toISOString(),
+        all_day: allDay,
+        blocker: true,
+        reminder: 0,
+      }),
+    );
+  }
+
   function handleDateClick(date: Date, allDay: boolean) {
     if (armedTaskId) {
       createBlock(armedTaskId, date, allDay);
       setArmedTaskId(null);
+      return;
+    }
+    if (armedBlocker) {
+      createBlocker(armedBlocker, date, allDay);
+      setArmedBlocker(null);
       return;
     }
     // Touch taps don't produce a drag-selection (FullCalendar requires a
@@ -218,9 +240,9 @@ function App() {
   }
 
   function handleSelectRange(start: Date, end: Date, allDay: boolean) {
-    // When a task is armed, placement happens in dateClick — don't also open
-    // the quick-create for the same click.
-    if (armedTaskId) return;
+    // When a task or blocker is armed, placement happens in dateClick — don't
+    // also open the quick-create for the same click.
+    if (armedTaskId || armedBlocker) return;
     setEventDraft({
       title: "",
       start,
@@ -374,6 +396,7 @@ function App() {
             <TaskSidebar
               tasks={tasks ?? []}
               armedTaskId={armedTaskId}
+              armedBlocker={armedBlocker}
               scheduledTaskIds={scheduledTaskIds}
               onAdd={(title) => mutate(() => createTask({ title }))}
               onEdit={setEditTask}
@@ -381,9 +404,15 @@ function App() {
               onDelete={handleDeleteTask}
               onArm={(taskId) => {
                 setArmedTaskId(taskId);
+                if (taskId) setArmedBlocker(null);
                 // On mobile the backlog covers the grid — close it so the
                 // armed tap can land on a calendar slot.
                 if (isMobile && taskId) setSidebarOpen(false);
+              }}
+              onArmBlocker={(preset) => {
+                setArmedBlocker(preset);
+                if (preset) setArmedTaskId(null);
+                if (isMobile && preset) setSidebarOpen(false);
               }}
             />
           );
@@ -422,6 +451,9 @@ function App() {
               onEventClick={handleEventClick}
               onEventTimeChange={handleEventTimeChange}
               onExternalDrop={handleExternalDrop}
+              onBlockerDrop={(title, minutes, start, allDay) =>
+                createBlocker({ title, minutes }, start, allDay)
+              }
             />
           )}
         </div>
