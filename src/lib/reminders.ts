@@ -114,7 +114,9 @@ async function syncAndroidSchedule(reminders: Reminder[]) {
         id: r.id,
         title: r.title,
         body: r.body,
-        schedule: Schedule.at(r.fireAt),
+        // allowWhileIdle -> setExactAndAllowWhileIdle: fires in Doze
+        // (screen off); without it alarms defer until the device wakes.
+        schedule: Schedule.at(r.fireAt, false, true),
       });
     }
   } catch (e) {

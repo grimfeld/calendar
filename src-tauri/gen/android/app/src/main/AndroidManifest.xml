@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Exact reminder alarms while the device is idle. USE_EXACT_ALARM is
+         auto-granted to calendar/alarm apps (API 33+); SCHEDULE_EXACT_ALARM
+         covers API 31-32 and OEMs that still gate it behind a toggle. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <!-- AndroidTV support -->
     <uses-feature android:name="android.software.leanback" android:required="false" />
