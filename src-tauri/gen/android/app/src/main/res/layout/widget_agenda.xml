@@ -7,15 +7,36 @@
     android:background="@android:color/white"
     android:padding="12dp">
 
-    <TextView
-        android:id="@+id/agenda_header"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Today"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="#111111"
-        android:paddingBottom="6dp" />
+        android:orientation="horizontal"
+        android:paddingBottom="6dp">
+
+        <TextView
+            android:id="@+id/agenda_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:text="Aujourd'hui"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#111111" />
+
+        <TextView
+            android:id="@+id/agenda_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="⟳"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#111111"
+            android:paddingLeft="8dp"
+            android:paddingRight="4dp"
+            android:contentDescription="Rafraîchir" />
+    </LinearLayout>
 
     <ListView
         android:id="@+id/agenda_list"
@@ -28,7 +49,7 @@
         android:id="@+id/agenda_empty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nothing scheduled today"
+        android:text="Rien de prévu aujourd'hui"
         android:textColor="#777777"
         android:textSize="13sp" />
 </LinearLayout>
